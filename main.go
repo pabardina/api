@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aiden0z/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/facebookgo/inject"
 	"github.com/gorilla/mux"
+	"github.com/jessevdk/go-flags"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
@@ -22,7 +24,16 @@ type AppHandlers struct {
 	*jwtmiddleware.JWTMiddleware `inject:""`
 }
 
-type userKey int
+var Config struct {
+	Auth0Secret string `short:"s" long:"auth-secret" description:"The secret from Auth0" required:"true"`
+	ServerPort  int    `short:"p" long:"server-port" description:"The server port" default:"8000" required:"true"`
+	Database    struct {
+		Address  string `long:"db-address" description:"The database address" default:"localhost" required:"true"`
+		Username string `long:"db-user" description:"The database username" required:"true"`
+		Password string `long:"db-password" description:"The database password" required:"true"`
+		Name     string `long:"db-name" description:"The database name" required:"true"`
+	}
+}
 
 func (ah *AppHandlers) TwitterHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -47,9 +58,9 @@ func (ah *AppHandlers) TwitterHandler(h http.Handler) http.Handler {
 		}
 
 		ctx = context.WithValue(ctx, "user", &user)
-		toto := r.WithContext(ctx)
+		updatedReq := r.WithContext(ctx)
 
-		h.ServeHTTP(w, toto)
+		h.ServeHTTP(w, updatedReq)
 	})
 }
 
@@ -104,16 +115,28 @@ func writeJSON(w http.ResponseWriter, data interface{}, code int) error {
 	return nil
 }
 
-func main() {
+func init() {
+	_, err := flags.Parse(&Config)
 
-	db, err := gorm.Open("postgres", "host=localhost user=toto dbname=toto password=toto sslmode=disable")
+	if err != nil {
+		panic(err)
+		os.Exit(1)
+	}
+
+}
+
+func main() {
+	db, err := gorm.Open("postgres",
+		fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable",
+			Config.Database.Address, Config.Database.Username, Config.Database.Name, Config.Database.Password))
+
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte("xxxxxxx"), nil
+			return []byte(Config.Auth0Secret), nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
 	})
@@ -141,7 +164,7 @@ func main() {
 	router.Handle("/tweets", appHandlers.TwitterHandler(http.HandlerFunc(appHandlers.GetTweetsEndpoint))).Methods("GET")
 
 	//router.HandleFunc("/keywords", appHandlers.PostKeywordEndpoint).Methods("POST")
-	//router.HandleFunc("/keywords", appHandlers.GetAllKeywordsEndpoint).Methods("GET")
+	router.HandleFunc("/keywords", appHandlers.GetAllKeywordsEndpoint).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", Config.ServerPort), router))
 }
