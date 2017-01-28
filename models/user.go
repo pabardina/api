@@ -1,12 +1,10 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "github.com/jinzhu/gorm"
 
 type User struct {
 	gorm.Model
-	TwitterID string `json:"twitter_id,omitempty"`
+	TwitterID string `json:"twitter_id"`
 
 	ConsumerKey       string `json:"consumer_key"`
 	ConsumerSecret    string `json:"consumer_secret"`

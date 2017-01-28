@@ -1,18 +1,17 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "github.com/jinzhu/gorm"
 
 type Keyword struct {
 	gorm.Model
-	Label  string `json:"label,omitempty" gorm:"not null;unique"`
-	Tweets []Tweet
+	Label  string  `json:"label" gorm:"not null;unique"`
+	Tweets []Tweet `json:"-"`
 }
 
 func CreateKeyword(db *gorm.DB, keyword *Keyword) error {
-	db.NewRecord(keyword)
-	db.Create(&keyword)
+	if err := db.Create(&keyword).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
