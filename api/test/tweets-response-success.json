@@ -1,0 +1,53 @@
+[
+  {
+    "ID": 0,
+    "CreatedAt": "0001-01-01T00:00:00Z",
+    "UpdatedAt": "0001-01-01T00:00:00Z",
+    "DeletedAt": null,
+    "tweet_id": "ec815d46-e647-11e6-9902-8bf35f54ad22",
+    "likes": 34,
+    "retweets": 45,
+    "keyword_id": 56,
+    "Keyword": {
+      "ID": 0,
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "UpdatedAt": "0001-01-01T00:00:00Z",
+      "DeletedAt": null,
+      "label": "python"
+    }
+  },
+  {
+    "ID": 0,
+    "CreatedAt": "0001-01-01T00:00:00Z",
+    "UpdatedAt": "0001-01-01T00:00:00Z",
+    "DeletedAt": null,
+    "tweet_id": "f0143618-e647-11e6-9656-4f834a284cc4",
+    "likes": 43,
+    "retweets": 76,
+    "keyword_id": 787,
+    "Keyword": {
+      "ID": 0,
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "UpdatedAt": "0001-01-01T00:00:00Z",
+      "DeletedAt": null,
+      "label": "golang"
+    }
+  },
+  {
+    "ID": 0,
+    "CreatedAt": "0001-01-01T00:00:00Z",
+    "UpdatedAt": "0001-01-01T00:00:00Z",
+    "DeletedAt": null,
+    "tweet_id": "f53feefc-e647-11e6-8213-07d71760f8c3",
+    "likes": 56,
+    "retweets": 93,
+    "keyword_id": 12,
+    "Keyword": {
+      "ID": 0,
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "UpdatedAt": "0001-01-01T00:00:00Z",
+      "DeletedAt": null,
+      "label": "java"
+    }
+  }
+]

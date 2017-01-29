@@ -3,4 +3,5 @@
 debug
 go
 *.db
+*.coverprofile
 

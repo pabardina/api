@@ -10,7 +10,13 @@ import (
 )
 
 type TweetsHandlers struct {
-	*tweets.Manager `inject:""`
+	Manager interface {
+		GetTweetsByUser() ([]tweets.Tweet, error)
+		CreateTweet(tweet *tweets.Tweet) error
+		ValidateTweet(tweet *tweets.Tweet) error
+		CreateKeyword(keyword *tweets.Keyword) error
+		GetKeywords() ([]tweets.Keyword, error)
+	} `inject:""`
 }
 
 func (customHandler *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, req *http.Request) {
@@ -19,7 +25,7 @@ func (customHandler *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, re
 
 	fmt.Print(user)
 
-	tweetList, _ := customHandler.GetTweetsByUser()
+	tweetList, _ := customHandler.Manager.GetTweetsByUser()
 
 	if err := writeJSON(w, tweetList, 200); err != nil {
 		log.Fatal(err)
@@ -31,13 +37,13 @@ func (customHandler *TweetsHandlers) PostTweetEndpoint(w http.ResponseWriter, re
 	json.NewDecoder(req.Body).Decode(&tweet)
 
 	// check if tweet is correct
-	if err := customHandler.ValidateTweet(&tweet); err != nil {
+	if err := customHandler.Manager.ValidateTweet(&tweet); err != nil {
 		httpError(w, 400, "invalid_tweet", err.Error())
 		return
 	}
 
 	// save tweet
-	if err := customHandler.CreateTweet(&tweet); err != nil {
+	if err := customHandler.Manager.CreateTweet(&tweet); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
@@ -56,7 +62,7 @@ func (customHandler *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, 
 		return
 	}
 
-	if err := customHandler.CreateKeyword(&keyword); err != nil {
+	if err := customHandler.Manager.CreateKeyword(&keyword); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
@@ -66,7 +72,7 @@ func (customHandler *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, 
 
 func (customHandler *TweetsHandlers) GetAllKeywordsEndpoint(w http.ResponseWriter, req *http.Request) {
 
-	keywords, _ := customHandler.GetKeywords()
+	keywords, _ := customHandler.Manager.GetKeywords()
 
 	if err := writeJSON(w, keywords, 200); err != nil {
 		log.Fatal(err)
