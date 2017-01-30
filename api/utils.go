@@ -15,7 +15,7 @@ func httpError(w http.ResponseWriter, code int, msg, description string) {
 func writeJSON(w http.ResponseWriter, data interface{}, code int) error {
 	b, err := json.Marshal(data)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)

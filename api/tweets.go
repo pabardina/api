@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -20,10 +19,8 @@ type TweetsHandlers struct {
 }
 
 func (customHandler *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, req *http.Request) {
-	ctx := req.Context()
-	user := ctx.Value("user")
-
-	fmt.Print(user)
+	//ctx := req.Context()
+	//user := ctx.Value("user")
 
 	tweetList, _ := customHandler.Manager.GetTweetsByUser()
 
