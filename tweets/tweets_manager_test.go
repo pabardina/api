@@ -63,6 +63,33 @@ var _ = Describe("TweetsManager", func() {
 
 		})
 
+		Context("when the tweet does not have likes", func() {
+
+			BeforeEach(func() {
+				validTweet.Likes = 0
+				tweetToValidate = validTweet
+			})
+
+			It("should return the right error", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Likes must not be empty"))
+			})
+		})
+
+		Context("when the tweet does not have retweets", func() {
+
+			BeforeEach(func() {
+				validTweet.Retweets = 0
+				tweetToValidate = validTweet
+			})
+
+			It("should return the right error", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Retweets must not be empty"))
+			})
+
+		})
+
 	})
 
 })
