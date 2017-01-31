@@ -34,7 +34,7 @@ func (m *Manager) ValidateTweet(tweet *Tweet) error {
 		return errors.New("Retweets must not be empty")
 	}
 	if tweet.KeywordID == 0 {
-		return errors.New("Keyword must not be empty")
+		return errors.New("Keyword ID must not be empty")
 	}
 	return nil
 }

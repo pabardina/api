@@ -90,6 +90,19 @@ var _ = Describe("TweetsManager", func() {
 
 		})
 
+		Context("when the tweet does not have keyword ID", func() {
+
+			BeforeEach(func() {
+				validTweet.KeywordID = 0
+				tweetToValidate = validTweet
+			})
+
+			It("should return the right error", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Keyword ID must not be empty"))
+			})
+
+		})
 	})
 
 })

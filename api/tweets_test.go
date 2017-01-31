@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -66,14 +67,18 @@ var _ = Describe("Tweets", func() {
 
 		})
 
-		XContext("when the manager fails to return the tweets", func() {
+		Context("when the manager fails to return the tweets", func() {
 
 			BeforeEach(func() {
 				mockTweetsManager.On("GetTweetsByUser").Return([]tweets.Tweet{}, errors.New("Something really terrible happened!"))
 			})
 
-			It("should respond with a http status code 500", func() {
+			XIt("should respond with a http status code 500", func() {
 				Expect(responseRecorder.Code).To(Equal(500))
+			})
+
+			It("should respond with an invalid JSON", func() {
+				Expect(responseRecorder.Body.String()).NotTo(MatchJSON(ReadContentFileString("test/tweets-response-success.json")))
 			})
 
 		})
@@ -118,6 +123,54 @@ var _ = Describe("Tweets", func() {
 				}))
 			})
 
+		})
+
+		Context("when the tweet is invalid", func() {
+
+			var errorMsg string
+
+			BeforeEach(func() {
+				errorMsg = "The tweet is invalid !"
+				mockTweetsManager.On("ValidateTweet", mock.Anything).Return(errors.New(errorMsg))
+			})
+
+			It("should respond with a http status 400", func() {
+				Expect(responseRecorder.Code).To(Equal(400))
+			})
+
+			It("should respond with the incorrect message", func() {
+				listErrors := make(map[string]string)
+				listErrors["error"] = "invalid_tweet"
+				listErrors["error_description"] = errorMsg
+				jsonErrors, _ := json.Marshal(listErrors)
+				Expect(responseRecorder.Body.String()).To(MatchJSON(jsonErrors))
+			})
+		})
+
+		Context("when the tweet is not inserted in database", func() {
+
+			var errorMsg string
+
+			BeforeEach(func() {
+				mockTweetsManager.On("ValidateTweet", mock.Anything).Return(nil)
+
+				errorMsg = "There is an error with the database"
+				mockTweetsManager.On("CreateTweet", mock.Anything).Return(errors.New(errorMsg))
+
+			})
+
+			It("should respond with a http status 400", func() {
+				Expect(responseRecorder.Code).To(Equal(400))
+			})
+
+			It("should respond with the correct message", func() {
+				listErrors := make(map[string]string)
+				listErrors["error"] = "db_error"
+				listErrors["error_description"] = errorMsg
+				jsonErrors, _ := json.Marshal(listErrors)
+
+				Expect(responseRecorder.Body.String()).To(MatchJSON(jsonErrors))
+			})
 		})
 
 	})
