@@ -52,7 +52,10 @@ func main() {
 func initDatabase() *gorm.DB {
 	db, err := gorm.Open("postgres",
 		fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable",
-			common.Config.Database.Address, common.Config.Database.Username, common.Config.Database.Name, common.Config.Database.Password))
+			common.Config.Database.Address,
+			common.Config.Database.Username,
+			common.Config.Database.Name,
+			common.Config.Database.Password))
 	if err != nil {
 		panic("failed to connect database")
 	}

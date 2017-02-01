@@ -18,29 +18,29 @@ type TweetsHandlers struct {
 	} `inject:""`
 }
 
-func (customHandler *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, req *http.Request) {
+func (h *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, req *http.Request) {
 	//ctx := req.Context()
 	//user := ctx.Value("user")
 
-	tweetList, _ := customHandler.Manager.GetTweetsByUser()
+	tweetList, _ := h.Manager.GetTweetsByUser()
 
 	if err := writeJSON(w, tweetList, 200); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (customHandler *TweetsHandlers) PostTweetEndpoint(w http.ResponseWriter, req *http.Request) {
+func (h *TweetsHandlers) PostTweetEndpoint(w http.ResponseWriter, req *http.Request) {
 	tweet := tweets.Tweet{}
 	json.NewDecoder(req.Body).Decode(&tweet)
 
 	// check if tweet is correct
-	if err := customHandler.Manager.ValidateTweet(&tweet); err != nil {
+	if err := h.Manager.ValidateTweet(&tweet); err != nil {
 		httpError(w, 400, "invalid_tweet", err.Error())
 		return
 	}
 
 	// save tweet
-	if err := customHandler.Manager.CreateTweet(&tweet); err != nil {
+	if err := h.Manager.CreateTweet(&tweet); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
@@ -49,7 +49,7 @@ func (customHandler *TweetsHandlers) PostTweetEndpoint(w http.ResponseWriter, re
 	writeJSON(w, tweet, 201)
 }
 
-func (customHandler *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, req *http.Request) {
+func (h *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, req *http.Request) {
 
 	keyword := tweets.Keyword{}
 	json.NewDecoder(req.Body).Decode(&keyword)
@@ -59,7 +59,7 @@ func (customHandler *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, 
 		return
 	}
 
-	if err := customHandler.Manager.CreateKeyword(&keyword); err != nil {
+	if err := h.Manager.CreateKeyword(&keyword); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
@@ -67,9 +67,9 @@ func (customHandler *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, 
 	writeJSON(w, keyword, 201)
 }
 
-func (customHandler *TweetsHandlers) GetAllKeywordsEndpoint(w http.ResponseWriter, req *http.Request) {
+func (h *TweetsHandlers) GetAllKeywordsEndpoint(w http.ResponseWriter, req *http.Request) {
 
-	keywords, _ := customHandler.Manager.GetKeywords()
+	keywords, _ := h.Manager.GetKeywords()
 
 	if err := writeJSON(w, keywords, 200); err != nil {
 		log.Fatal(err)
