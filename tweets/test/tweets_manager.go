@@ -34,6 +34,11 @@ func (m *MockTweetsManager) GetKeywords() ([]tweets.Keyword, error) {
 	return args.Get(0).([]tweets.Keyword), args.Error(1)
 }
 
+func (m *MockTweetsManager) GetTweetsForKeyword(keywordID int, params *tweets.ParamsTweet) ([]tweets.Tweet, error) {
+	args := m.Called(keywordID, params)
+	return args.Get(0).([]tweets.Tweet), args.Error(1)
+}
+
 func (m *MockTweetsManager) GetCallsForMethod(methodName string) []mock.Call {
 	calls := []mock.Call{}
 	for _, call := range m.Calls {

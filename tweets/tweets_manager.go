@@ -2,6 +2,7 @@ package tweets
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 )
@@ -50,4 +51,41 @@ func (m *Manager) GetKeywords() ([]Keyword, error) {
 	keywords := []Keyword{}
 	m.DB.Preload("Tweets").Find(&keywords)
 	return keywords, nil
+}
+
+func (m *Manager) GetTweetsForKeyword(keywordID int, params *ParamsTweet) (PaginateTweet, error) {
+
+	tweets := []Tweet{}
+	results := m.DB.Where("keyword_id = ?", keywordID).Find(&tweets)
+	total := len(tweets)
+	results.Offset(params.Start).Limit(params.Limit).Preload("Keyword").Find(&tweets)
+
+	// move in paginate
+	// create JSON response struct
+
+	var previous, next string
+
+	if params.Start > 1 {
+		previousVal := 0
+		previous = fmt.Sprintf("/keywords/%d/tweets?start=%d&limit=%d&retweets=%d&likes=%d",
+			keywordID, previousVal, params.Limit, params.Retweets, params.Likes)
+	}
+
+	if (params.Start + params.Limit) <= total {
+		nextVal := 0
+		next = fmt.Sprintf("/keywords/%d/tweets?start=%d&per_page=%d&retweets=%d&likes=%d",
+			keywordID, nextVal, params.Limit, params.Retweets, params.Likes)
+	}
+
+	paginateTweet := PaginateTweet{
+		Start:    params.Start,
+		PerPage:  params.Limit,
+		Total:    total,
+		Next:     next,
+		Previous: previous,
+		Results:  tweets,
+	}
+
+	return paginateTweet, nil
+
 }

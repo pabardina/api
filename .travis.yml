@@ -3,7 +3,7 @@ language: go
 go:
   - 1.7
   - master
-  
+
 before_install:
   - go get github.com/onsi/ginkgo/ginkgo
   - go get github.com/onsi/gomega
@@ -13,3 +13,26 @@ install:
 
 script:
   - ginkgo -r -v
+
+before_deploy:
+  - go get github.com/mitchellh/gox
+  - gox -osarch="linux/amd64"
+  - openssl aes-256-cbc -K $encrypted_240c9adf9767_key -iv $encrypted_240c9adf9767_iv
+    -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 /tmp/deploy_rsa
+  - ssh-add /tmp/deploy_rsa
+
+deploy:
+  - provider: releases
+    api_key:
+    secure: HFMeKFVObvB0cfcVFL0Ti0207JB7htYSXdZHWt6yw+HM7N03TMj2luHqbokeOJW3oMJ4iQX+vgBZR7QR1+ieGkgPS6tZWS9ooq4zs3+jcScnqiL/xBDvRVSROXpHCv+l+StHKyd1z5iSfld/m0sRnaIpDP8/etvHNWJYcnd4Q9Ku/71pyMC7StihRovYv/piHV4yQNPILN6xJbyKRltxBwh0KN/M7NSnjl3NYpdPcHTMpehfn+GEVvS/k5myX0MvCFdQEa7uRvkB3DsXhe0dbvLaoVkHqLn/QW5IvUqUtcCoHp8xdcLx4tqSlb6ky0LfM3j+RilvWt9Obo3lD/ISEuU1ekkMAsjTJITE9dQowIb0znYvqhGojngmhLfw3KiZXN8B/cXQ/SXCTNCo/3raDnW7HKP25eKO+h5NdykVfabRgbhCNBEEUmyy8w/aQQlxKiQd8THq6DSZR1KsZ85LQkJUWxgudTPoQm7kY5npQxshWnZ1wrobcLF/efYKGohJL6PooM8mY77msOAAHJ5ZtszbR5zKe86nIIOU5B7ERkK02EXni7/EcK1zHbyAuus36SdbdR0lERI3A5NafMKFpVENdoVWwaZIKLTb/k1wEFz2X8RlIBtFhB/SUX3SCJbV0jK5v/j1A6RDIrEWWr0GoCgd1iVrIvRhnnoVnPLRZns=
+  file: api_linux_amd64
+  skip_cleanup: true
+  on:
+    repo: hirondelle-app/api
+    tags: true
+  - provider: script
+    script: ssh -o "StrictHostKeyChecking no" $ssh_user@$address './deploy.sh'
+    on:
+      tags: true

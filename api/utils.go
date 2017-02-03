@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 func httpError(w http.ResponseWriter, code int, msg, description string) {
@@ -22,4 +23,16 @@ func writeJSON(w http.ResponseWriter, data interface{}, code int) error {
 	w.Write(b)
 
 	return nil
+}
+
+func GetQueryParamToStr(param string, r *http.Request) int {
+	if val := r.FormValue(param); val != "" {
+		intVal, err := strconv.Atoi(val)
+		if err != nil {
+			panic(err)
+		}
+		return intVal
+	}
+	return 0
+
 }

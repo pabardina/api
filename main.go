@@ -44,6 +44,7 @@ func main() {
 
 	router.HandleFunc("/keywords", tweetsHandlers.PostKeywordEndpoint).Methods("POST")
 	router.HandleFunc("/keywords", tweetsHandlers.GetAllKeywordsEndpoint).Methods("GET")
+	router.HandleFunc("/keywords/{keywordID}/tweets", tweetsHandlers.GetTweetsByKeywordEndpoint).Methods("GET")
 
 	fmt.Printf("Starting server on port %v\n", common.Config.ServerPort)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", common.Config.ServerPort), router))
