@@ -88,10 +88,11 @@ func (h *TweetsHandlers) GetTweetsByKeywordEndpoint(w http.ResponseWriter, req *
 	}
 
 	params := &tweets.ParamsTweet{
-		Limit:    GetQueryParamToStr("limit", req),
-		Start:    GetQueryParamToStr("start", req),
-		Retweets: GetQueryParamToStr("retweets", req),
-		Likes:    GetQueryParamToStr("likes", req),
+		Limit:     GetQueryParamToStr("limit", req),
+		Start:     GetQueryParamToStr("start", req),
+		Retweets:  GetQueryParamToStr("retweets", req),
+		Likes:     GetQueryParamToStr("likes", req),
+		KeywordID: keywordID,
 	}
 
 	if params.Limit == 0 {
