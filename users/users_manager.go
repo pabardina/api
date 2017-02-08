@@ -6,14 +6,15 @@ type Manager struct {
 	*gorm.DB `inject:""`
 }
 
-func (m *Manager) FindOrCreateUserForTwitterID(twitterID string) (*User, error) {
+func (m *Manager) FindOrCreateUser(userAuthID string) (*User, error) {
 	user := &User{}
-	m.Where("twitter_id = ?", twitterID).First(user)
+	m.Where("auth_id = ?", userAuthID).First(user)
 
 	// no user in DB
-	if user.TwitterID == "" {
+	if user.AuthID == "" {
 		// create user
-		user.TwitterID = twitterID
+		user.AuthID = userAuthID
+		user.IsAdmin = false
 		m.Create(user)
 	}
 

@@ -38,13 +38,16 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	//router.Handle("/tweets", authMiddleware.Use(http.HandlerFunc(tweetsHandlers.GetTweetsEndpoint))).Methods("GET")
-	router.Handle("/tweets", http.HandlerFunc(tweetsHandlers.GetTweetsEndpoint)).Methods("GET")
-	router.Handle("/tweets", http.HandlerFunc(tweetsHandlers.PostTweetEndpoint)).Methods("POST")
 
-	router.HandleFunc("/keywords", tweetsHandlers.PostKeywordEndpoint).Methods("POST")
+	// public routes
+	router.Handle("/tweets", http.HandlerFunc(tweetsHandlers.GetTweetsEndpoint)).Methods("GET")
 	router.HandleFunc("/keywords", tweetsHandlers.GetAllKeywordsEndpoint).Methods("GET")
 	router.HandleFunc("/keywords/{keywordID}/tweets", tweetsHandlers.GetTweetsByKeywordEndpoint).Methods("GET")
+
+	// admin routes
+	router.Handle("/keywords", authMiddleware.Use(http.HandlerFunc(tweetsHandlers.PostKeywordEndpoint))).Methods("POST")
+	router.Handle("/keywords/{keywordID}", authMiddleware.Use(http.HandlerFunc(tweetsHandlers.DeleteKeywordEndpoint))).Methods("DELETE")
+	router.Handle("/tweets/{tweetID}", authMiddleware.Use(http.HandlerFunc(tweetsHandlers.DeleteTweetEndpoint))).Methods("DELETE")
 
 	fmt.Printf("Starting server on port %v\n", common.Config.ServerPort)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", common.Config.ServerPort), router))
@@ -57,9 +60,11 @@ func initDatabase() *gorm.DB {
 			common.Config.Database.Username,
 			common.Config.Database.Name,
 			common.Config.Database.Password))
+
 	if err != nil {
 		panic("failed to connect database")
 	}
+
 	db.AutoMigrate(&tweets.Tweet{}, &tweets.Keyword{}, &users.User{})
 	return db
 }

@@ -10,14 +10,26 @@ type Manager struct {
 	DB *gorm.DB `inject:""`
 }
 
-func (m *Manager) GetTweetsByUser() ([]Tweet, error) {
+func (m *Manager) GetAllTweets() ([]Tweet, error) {
 	tweetList := []Tweet{}
 	m.DB.Preload("Keyword").Find(&tweetList)
 	return tweetList, nil
 }
 
-func (m *Manager) CreateTweet(tweet *Tweet) error {
-	if err := m.DB.Create(&tweet).Error; err != nil {
+func (m *Manager) GetTweet(tweetID int) (Tweet, error) {
+	tweet := Tweet{}
+	m.DB.First(&tweet, tweetID)
+	return tweet, nil
+}
+
+func (m *Manager) DeleteTweet(tweetID int) error {
+	tweet, err := m.GetTweet(tweetID)
+
+	if err != nil {
+		return err
+	}
+
+	if err := m.DB.Unscoped().Delete(&tweet).Error; err != nil {
 		return err
 	}
 	return nil
@@ -46,9 +58,30 @@ func (m *Manager) CreateKeyword(keyword *Keyword) error {
 	return nil
 }
 
+func (m *Manager) DeleteKeyword(keywordID int) error {
+	keyword, err := m.GetKeyword(keywordID)
+
+	if err != nil {
+		return err
+	}
+
+	m.DB.Exec("DELETE FROM tweets where keyword_id = ?", keywordID)
+
+	if err := m.DB.Unscoped().Delete(&keyword).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Manager) GetKeyword(keywordID int) (Keyword, error) {
+	keyword := Keyword{}
+	m.DB.First(&keyword, keywordID)
+	return keyword, nil
+}
+
 func (m *Manager) GetKeywords() ([]Keyword, error) {
 	keywords := []Keyword{}
-	m.DB.Preload("Tweets").Find(&keywords)
+	m.DB.Find(&keywords)
 	return keywords, nil
 }
 

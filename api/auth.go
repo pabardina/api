@@ -18,16 +18,25 @@ type AuthMiddleware struct {
 
 func (auth *AuthMiddleware) Use(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		req, _ := auth.CheckJWT(w, r)
+		req, err := auth.CheckJWT(w, r)
+
+		if err != nil {
+			return
+		}
 
 		ctx := req.Context()
 		auth0User := ctx.Value("user")
 
-		twitterID := auth0User.(*jwt.Token).Claims.(jwt.MapClaims)["sub"].(string)
-		user, err := auth.FindOrCreateUserForTwitterID(twitterID)
+		userAuthID := auth0User.(*jwt.Token).Claims.(jwt.MapClaims)["sub"].(string)
+		user, err := auth.FindOrCreateUser(userAuthID)
+
 		if err != nil {
-			// TODO
-			panic(err)
+			httpError(w, 403, "auth", err.Error())
+		}
+
+		if user.IsAdmin == false {
+			httpError(w, 403, "auth", "Admin only")
+			return
 		}
 
 		ctx = context.WithValue(ctx, contextUser("user"), &user)
