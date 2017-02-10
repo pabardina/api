@@ -16,19 +16,13 @@ func (m *Manager) GetAllTweets() ([]Tweet, error) {
 	return tweetList, nil
 }
 
-func (m *Manager) GetTweet(tweetID int) (Tweet, error) {
+func (m *Manager) GetTweetByID(tweetID int) (Tweet, error) {
 	tweet := Tweet{}
 	m.DB.First(&tweet, tweetID)
 	return tweet, nil
 }
 
-func (m *Manager) DeleteTweet(tweetID int) error {
-	tweet, err := m.GetTweet(tweetID)
-
-	if err != nil {
-		return err
-	}
-
+func (m *Manager) DeleteTweet(tweet *Tweet) error {
 	if err := m.DB.Unscoped().Delete(&tweet).Error; err != nil {
 		return err
 	}
@@ -59,7 +53,7 @@ func (m *Manager) CreateKeyword(keyword *Keyword) error {
 }
 
 func (m *Manager) DeleteKeyword(keywordID int) error {
-	keyword, err := m.GetKeyword(keywordID)
+	keyword, err := m.GetKeywordByID(keywordID)
 
 	if err != nil {
 		return err
@@ -73,7 +67,7 @@ func (m *Manager) DeleteKeyword(keywordID int) error {
 	return nil
 }
 
-func (m *Manager) GetKeyword(keywordID int) (Keyword, error) {
+func (m *Manager) GetKeywordByID(keywordID int) (Keyword, error) {
 	keyword := Keyword{}
 	m.DB.First(&keyword, keywordID)
 	return keyword, nil

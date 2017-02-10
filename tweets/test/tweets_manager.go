@@ -9,12 +9,17 @@ type MockTweetsManager struct {
 	mock.Mock
 }
 
-func (m *MockTweetsManager) GetTweetsByUser() ([]tweets.Tweet, error) {
+func (m *MockTweetsManager) GetAllTweets() ([]tweets.Tweet, error) {
 	args := m.Called()
 	return args.Get(0).([]tweets.Tweet), args.Error(1)
 }
 
-func (m *MockTweetsManager) CreateTweet(tweet *tweets.Tweet) error {
+func (m *MockTweetsManager) GetTweetByID(tweetID int) (tweets.Tweet, error) {
+	args := m.Called(tweetID)
+	return args.Get(0).(tweets.Tweet), args.Error(1)
+}
+
+func (m *MockTweetsManager) DeleteTweet(tweet *tweets.Tweet) error {
 	args := m.Called(tweet)
 	return args.Error(0)
 }
@@ -27,6 +32,16 @@ func (m *MockTweetsManager) ValidateTweet(tweet *tweets.Tweet) error {
 func (m *MockTweetsManager) CreateKeyword(keyword *tweets.Keyword) error {
 	args := m.Called(keyword)
 	return args.Error(0)
+}
+
+func (m *MockTweetsManager) DeleteKeyword(keywordID int) error {
+	args := m.Called(keywordID)
+	return args.Error(0)
+}
+
+func (m *MockTweetsManager) GetKeywordByID(keywordID int) (tweets.Keyword, error) {
+	args := m.Called(keywordID)
+	return args.Get(0).(tweets.Keyword), args.Error(1)
 }
 
 func (m *MockTweetsManager) GetKeywords() ([]tweets.Keyword, error) {

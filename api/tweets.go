@@ -13,18 +13,24 @@ import (
 type TweetsHandlers struct {
 	Manager interface {
 		GetAllTweets() ([]tweets.Tweet, error)
-		DeleteTweet(tweetID int) error
+		GetTweetByID(tweetID int) (tweets.Tweet, error)
+		DeleteTweet(tweet *tweets.Tweet) error
 		ValidateTweet(tweet *tweets.Tweet) error
 		CreateKeyword(keyword *tweets.Keyword) error
 		DeleteKeyword(keywordID int) error
-		GetKeyword(keywordID int) (tweets.Keyword, error)
+		GetKeywordByID(keywordID int) (tweets.Keyword, error)
 		GetKeywords() ([]tweets.Keyword, error)
 		GetTweetsForKeyword(keywordID int, params *tweets.ParamsTweet) (tweets.PaginateTweet, error)
 	} `inject:""`
 }
 
 func (h *TweetsHandlers) GetTweetsEndpoint(w http.ResponseWriter, req *http.Request) {
-	tweetList, _ := h.Manager.GetAllTweets()
+	tweetList, err := h.Manager.GetAllTweets()
+
+	if err != nil {
+		httpError(w, 400, "error", err.Error())
+		return
+	}
 
 	if err := writeJSON(w, tweetList, 200); err != nil {
 		log.Fatal(err)
@@ -35,14 +41,21 @@ func (h *TweetsHandlers) DeleteTweetEndpoint(w http.ResponseWriter, req *http.Re
 
 	vars := mux.Vars(req)
 	tweetStr := vars["tweetID"]
-	tweetID, _ := strconv.Atoi(tweetStr)
 
-	if tweetID == 0 {
-		httpError(w, 400, "invalid_tweet", "tweetID must be set in url")
+	if tweetStr == "" {
+		httpError(w, 404, "invalid_tweet", "tweetID must be set in url")
 		return
 	}
 
-	if err := h.Manager.DeleteTweet(tweetID); err != nil {
+	tweetID, _ := strconv.Atoi(tweetStr)
+
+	tweet, err := h.Manager.GetTweetByID(tweetID)
+	if err != nil {
+		httpError(w, 404, "not_found", err.Error())
+		return
+	}
+
+	if err := h.Manager.DeleteTweet(&tweet); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
@@ -72,12 +85,13 @@ func (h *TweetsHandlers) DeleteKeywordEndpoint(w http.ResponseWriter, req *http.
 
 	vars := mux.Vars(req)
 	keywordStr := vars["keywordID"]
-	keywordID, _ := strconv.Atoi(keywordStr)
 
-	if keywordID == 0 {
-		httpError(w, 400, "invalid_keyword", "keywordID must be set in url")
+	if keywordStr == "" {
+		httpError(w, 404, "invalid_keyword", "keywordID must be set in url")
 		return
 	}
+
+	keywordID, _ := strconv.Atoi(keywordStr)
 
 	if err := h.Manager.DeleteKeyword(keywordID); err != nil {
 		httpError(w, 400, "db_error", err.Error())

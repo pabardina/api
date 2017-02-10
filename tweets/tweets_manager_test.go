@@ -17,8 +17,10 @@ var _ = Describe("TweetsManager", func() {
 
 	Describe("ValidateTweet", func() {
 
-		var validTweet, tweetToValidate Tweet
-		var err error
+		var (
+			validTweet, tweetToValidate Tweet
+			err                         error
+		)
 
 		AfterEach(func() {
 			err = nil
