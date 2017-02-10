@@ -55,7 +55,8 @@ func (m *Manager) GetKeywords() ([]Keyword, error) {
 func (m *Manager) GetTweetsForKeyword(keywordID int, params *ParamsTweet) (PaginateTweet, error) {
 
 	tweets := []Tweet{}
-	results := m.DB.Where("keyword_id = ? AND likes >= ? AND retweets >= ?", keywordID, params.Likes, params.Retweets).Find(&tweets)
+	results := m.DB.Where("keyword_id = ? AND likes >= ? AND retweets >= ?", keywordID, params.Likes, params.Retweets).
+		Order("created_at desc").Find(&tweets)
 	params.Total = len(tweets)
 	results.Offset(params.Start).Limit(params.Limit).Preload("Keyword").Find(&tweets)
 
