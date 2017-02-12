@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hirondelle-app/api/container"
 	"github.com/hirondelle-app/api/tweets"
 )
 
@@ -77,6 +78,8 @@ func (h *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, req *http.Re
 		return
 	}
 
+	go container.ManageContainer()
+
 	writeJSON(w, keyword, 201)
 }
 
@@ -96,6 +99,8 @@ func (h *TweetsHandlers) DeleteKeywordEndpoint(w http.ResponseWriter, req *http.
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}
+
+	go container.ManageContainer()
 
 	writeJSON(w, nil, 204)
 }

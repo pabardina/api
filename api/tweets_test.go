@@ -177,7 +177,7 @@ var _ = Describe("Tweets", func() {
 
 	})
 
-	Describe("PostKeywordEndpoint", func() {
+	XDescribe("PostKeywordEndpoint", func() {
 
 		Context("when the keyword is successfully created", func() {
 
