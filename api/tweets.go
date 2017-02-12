@@ -66,9 +66,8 @@ func (h *TweetsHandlers) DeleteTweetEndpoint(w http.ResponseWriter, req *http.Re
 func (h *TweetsHandlers) PostKeywordEndpoint(w http.ResponseWriter, req *http.Request) {
 
 	keyword := tweets.Keyword{}
-	json.NewDecoder(req.Body).Decode(&keyword)
 
-	if keyword.Label == "" {
+	if err := json.NewDecoder(req.Body).Decode(&keyword); err != nil {
 		httpError(w, 400, "invalid_keyword", "Label must not be empty")
 		return
 	}
