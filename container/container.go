@@ -28,6 +28,8 @@ func ManageContainer() {
 		"--access-token-secret=" + os.Getenv("ACCESS_TOKEN_SECRET"),
 		"--consumer-key=" + os.Getenv("CONSUMER_KEY"),
 		"--consumer-secret=" + os.Getenv("CONSUMER_SECRET"),
+		"-a=" + os.Getenv("API_ADDRESS"),
+		"-q=" + os.Getenv("QUEUE_ADDRESS"),
 		"-l=5", "-r=5",
 	}
 
