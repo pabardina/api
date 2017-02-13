@@ -34,8 +34,8 @@ func (m *MockTweetsManager) CreateKeyword(keyword *tweets.Keyword) error {
 	return args.Error(0)
 }
 
-func (m *MockTweetsManager) DeleteKeyword(keywordID int) error {
-	args := m.Called(keywordID)
+func (m *MockTweetsManager) DeleteKeyword(keyword *tweets.Keyword) error {
+	args := m.Called(keyword)
 	return args.Error(0)
 }
 

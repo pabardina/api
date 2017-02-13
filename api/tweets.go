@@ -18,7 +18,7 @@ type TweetsHandlers struct {
 		DeleteTweet(tweet *tweets.Tweet) error
 		ValidateTweet(tweet *tweets.Tweet) error
 		CreateKeyword(keyword *tweets.Keyword) error
-		DeleteKeyword(keywordID int) error
+		DeleteKeyword(keyword *tweets.Keyword) error
 		GetKeywordByID(keywordID int) (tweets.Keyword, error)
 		GetKeywords() ([]tweets.Keyword, error)
 		GetTweetsForKeyword(keywordID int, params *tweets.ParamsTweet) (tweets.PaginateTweet, error)
@@ -95,7 +95,13 @@ func (h *TweetsHandlers) DeleteKeywordEndpoint(w http.ResponseWriter, req *http.
 
 	keywordID, _ := strconv.Atoi(keywordStr)
 
-	if err := h.Manager.DeleteKeyword(keywordID); err != nil {
+	keyword, err := h.Manager.GetKeywordByID(keywordID)
+	if err != nil {
+		httpError(w, 404, "not_found", err.Error())
+		return
+	}
+
+	if err := h.Manager.DeleteKeyword(&keyword); err != nil {
 		httpError(w, 400, "db_error", err.Error())
 		return
 	}

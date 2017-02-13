@@ -19,6 +19,10 @@ func (m *Manager) GetAllTweets() ([]Tweet, error) {
 func (m *Manager) GetTweetByID(tweetID int) (Tweet, error) {
 	tweet := Tweet{}
 	m.DB.First(&tweet, tweetID)
+	if tweet.ID == 0 {
+		return tweet, errors.New("Tweet not found")
+
+	}
 	return tweet, nil
 }
 
@@ -52,14 +56,9 @@ func (m *Manager) CreateKeyword(keyword *Keyword) error {
 	return nil
 }
 
-func (m *Manager) DeleteKeyword(keywordID int) error {
-	keyword, err := m.GetKeywordByID(keywordID)
+func (m *Manager) DeleteKeyword(keyword *Keyword) error {
 
-	if err != nil {
-		return err
-	}
-
-	m.DB.Exec("DELETE FROM tweets where keyword_id = ?", keywordID)
+	m.DB.Exec("DELETE FROM tweets where keyword_id = ?", keyword.ID)
 
 	if err := m.DB.Unscoped().Delete(&keyword).Error; err != nil {
 		return err
@@ -70,6 +69,10 @@ func (m *Manager) DeleteKeyword(keywordID int) error {
 func (m *Manager) GetKeywordByID(keywordID int) (Keyword, error) {
 	keyword := Keyword{}
 	m.DB.First(&keyword, keywordID)
+	if keyword.ID == 0 {
+		return keyword, errors.New("Keyword not found")
+
+	}
 	return keyword, nil
 }
 
